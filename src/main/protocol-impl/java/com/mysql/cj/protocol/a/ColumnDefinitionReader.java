@@ -49,16 +49,12 @@ public class ColumnDefinitionReader implements ProtocolEntityReader<ColumnDefini
     public ColumnDefinition read(ProtocolEntityFactory<ColumnDefinition, NativePacketPayload> sf) {
 
         ColumnDefinitionFactory cdf = (ColumnDefinitionFactory) sf;
-        boolean checkEOF = !this.protocol.getServerSession().isEOFDeprecated();
 
         long columnCount = cdf.getColumnCount();
         ColumnDefinition cdef = cdf.getColumnDefinitionFromCache();
 
         if (cdef != null && !cdf.mergeColumnDefinitions()) {
             for (int i = 0; i < columnCount; i++) {
-                this.protocol.skipPacket();
-            }
-            if (checkEOF) {
                 this.protocol.skipPacket();
             }
             return cdef;
@@ -70,19 +66,15 @@ public class ColumnDefinitionReader implements ProtocolEntityReader<ColumnDefini
         // Read in the column information
 
         fields = new Field[(int) columnCount];
-        boolean gotEOF = false;
+        boolean checkEOF = !this.protocol.getServerSession().isEOFDeprecated();
 
         for (int i = 0; i < columnCount; i++) {
             NativePacketPayload fieldPacket = this.protocol.readMessage(null);
             // next check is needed for SSPS
             if (checkEOF && fieldPacket.isEOFPacket()) {
-                gotEOF = true;
                 break;
             }
             fields[i] = unpackField(fieldPacket, this.protocol.getServerSession().getCharsetSettings().getMetadataEncoding());
-        }
-        if (checkEOF && !gotEOF) {
-            this.protocol.skipPacket();
         }
 
         return cdf.createFromFields(fields);
