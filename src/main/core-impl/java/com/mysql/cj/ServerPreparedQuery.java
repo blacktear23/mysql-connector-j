@@ -156,12 +156,14 @@ public class ServerPreparedQuery extends AbstractPreparedQuery<ServerPreparedQue
                         this.session.getCurrentTimeNanosOrMillis() - begin, new Throwable(), truncateQueryToLog(sql));
             }
 
-            boolean checkEOF = !this.session.getServerSession().isEOFDeprecated();
+            // boolean checkEOF = !this.session.getServerSession().isEOFDeprecated();
 
             if (this.parameterCount > 0) {
+                /*
                 if (checkEOF) { // Skip the following EOF packet.
                     this.session.getProtocol().skipPacket();
                 }
+                */
 
                 this.parameterFields = this.session.getProtocol().read(ColumnDefinition.class, new ColumnDefinitionFactory(this.parameterCount, null))
                         .getFields();
