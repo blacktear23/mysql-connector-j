@@ -62,11 +62,11 @@ public class ColumnDefinitionReader implements ProtocolEntityReader<ColumnDefini
 
         /* read the metadata from the server */
         Field[] fields = null;
+        boolean checkEOF = !this.protocol.getServerSession().isEOFDeprecated();
 
         // Read in the column information
 
         fields = new Field[(int) columnCount];
-        boolean checkEOF = !this.protocol.getServerSession().isEOFDeprecated();
 
         for (int i = 0; i < columnCount; i++) {
             NativePacketPayload fieldPacket = this.protocol.readMessage(null);
